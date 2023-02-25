@@ -21,12 +21,12 @@ RUN poetry config virtualenvs.in-project true && \
     poetry install --only=main --no-root && \
     poetry build
 
-#FROM base as final
+FROM base as final
 
-#COPY --from=builder /app/.venv ./.venv
-#COPY --from=builder /app/dist .
-#COPY docker-entrypoint.sh .
-#RUN ./.venv/bin/pip install *.whl
+COPY --from=builder /app/.venv ./.venv
+COPY --from=builder /app/dist .
+COPY --from=builder /app/my_try_webapi ./my_try_webapi
+RUN ./.venv/bin/pip install *.whl
 
 #WORKDIR app
 EXPOSE 80
