@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "my-try-webapi"
+version = "0.1.0"
+description = ""
+authors = ["torupa <xpt77@outlook.com>"]
+readme = "README.md"
+packages = [{include = "my_try_webapi"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.92.0"
+uvicorn = "^0.20.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
