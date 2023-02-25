@@ -1,5 +1,5 @@
 FROM python:3.10-slim as base
-# Python setup
+
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random \
     PYTHONUNBUFFERED=1
@@ -7,7 +7,7 @@ ENV PYTHONFAULTHANDLER=1 \
 WORKDIR /app
 
 FROM base as builder
-# Prepare poetry and install
+
 ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -22,11 +22,12 @@ RUN poetry config virtualenvs.in-project true && \
     poetry build
 
 #FROM base as final
+
 #COPY --from=builder /app/.venv ./.venv
 #COPY --from=builder /app/dist .
 #COPY docker-entrypoint.sh .
 #RUN ./.venv/bin/pip install *.whl
-#WORKDIR app
 
+#WORKDIR app
 EXPOSE 80
 CMD ["/app/.venv/bin/uvicorn", "my_try_webapi.main:app", "--host", "0.0.0.0", "--port", "80"]
