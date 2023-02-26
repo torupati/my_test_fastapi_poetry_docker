@@ -29,5 +29,10 @@ COPY --from=builder /app/my_try_webapi ./my_try_webapi
 RUN ./.venv/bin/pip install *.whl
 
 #WORKDIR app
-EXPOSE 80
-CMD ["/app/.venv/bin/uvicorn", "my_try_webapi.main:app", "--host", "0.0.0.0", "--port", "80"]
+ARG PORT=80
+ENV PORT=${PORT}
+ENV PATH=${PATH}:/app/.venv/bin
+
+#EXPOSE 80
+#CMD ["/app/.venv/bin/uvicorn", "my_try_webapi.main:app", "--host", "0.0.0.0", "--port", "80 "]
+CMD exec uvicorn my_try_webapi.main:app --host 0.0.0.0 --port ${PORT} 
