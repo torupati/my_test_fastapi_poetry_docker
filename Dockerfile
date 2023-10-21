@@ -1,38 +1,36 @@
-FROM python:3.10-slim as base
+FROM python:3.10-buster as builder
 
-ENV PYTHONFAULTHANDLER=1 \
-    PYTHONHASHSEED=random \
-    PYTHONUNBUFFERED=1
+RUN pip install poetry==1.5.1
+
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
 WORKDIR /app
 
-FROM base as builder
+COPY pyproject.toml poetry.lock ./
+RUN touch README.md
 
-ENV PIP_DEFAULT_TIMEOUT=100 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1 \
-    POETRY_VERSION=1.3.1
+RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
-RUN pip install "poetry==$POETRY_VERSION"
+# ---------------------------------------------------------
 
-COPY pyproject.toml poetry.lock README.md ./
+FROM python:3.10-slim-buster as runtime
+
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH"
+
+COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+
 COPY my_try_webapi ./my_try_webapi
-RUN poetry config virtualenvs.in-project true && \
-    poetry install --only=main --no-root && \
-    poetry build
 
-FROM base as final
-
-COPY --from=builder /app/.venv ./.venv
-COPY --from=builder /app/dist .
-COPY --from=builder /app/my_try_webapi ./my_try_webapi
-RUN ./.venv/bin/pip install *.whl
-
-#WORKDIR app
 ARG PORT=80
 ENV PORT=${PORT}
 ENV PATH=${PATH}:/app/.venv/bin
 
-#EXPOSE 80
+EXPOSE 80
+CMD [ "ls", "/app/.venv/bin/"]
 #CMD ["/app/.venv/bin/uvicorn", "my_try_webapi.main:app", "--host", "0.0.0.0", "--port", "80 "]
-CMD exec uvicorn my_try_webapi.main:app --host 0.0.0.0 --port ${PORT} 
+#CMD exec uvicorn my_try_webapi.main:app --host 0.0.0.0 --port ${PORT} 
+#ENTRYPOINT ["python", "-m", "annapurna.main"]
