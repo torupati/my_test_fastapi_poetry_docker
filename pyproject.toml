@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["torupa <xpt77@outlook.com>"]
 readme = "README.md"
-packages = [{include = "my_try_webapi"}]
+packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
