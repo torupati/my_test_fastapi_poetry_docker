@@ -16,7 +16,7 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
 RUN pip install "poetry==$POETRY_VERSION"
 
 COPY pyproject.toml poetry.lock README.md ./
-COPY app ./app
+COPY my_try_webapi ./my_try_webapi
 RUN poetry config virtualenvs.in-project true && \
     poetry install --only=main --no-root && \
     poetry build
@@ -25,7 +25,7 @@ FROM base as final
 
 COPY --from=builder /app/.venv ./.venv
 COPY --from=builder /app/dist .
-COPY --from=builder /app/app ./app
+COPY --from=builder /app/my_try_webapi ./my_try_webapi
 RUN ./.venv/bin/pip install *.whl && rm *.whl
 
 #WORKDIR app
@@ -35,4 +35,4 @@ ENV PATH=${PATH}:/app/.venv/bin
 
 #EXPOSE 80
 #CMD ["/app/.venv/bin/uvicorn", "my_try_webapi.main:app", "--host", "0.0.0.0", "--port", "80 "]
-CMD exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT} 
+CMD exec uvicorn my_try_webapi.main:app --host 0.0.0.0 --port ${PORT} 
